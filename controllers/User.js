@@ -19,22 +19,53 @@ export const Register = async (req, res) => {
 
         const savedUser = await newUser.save();
 
-        const payload = {
-            username: savedUser.username,
-            email: savedUser.email,
-        };
+        res.status(200).json(savedUser);
 
-        const secretKey = 'patron';
-        const expIn = "5d";
-
-        jwt.sign(payload, secretKey, { expiresIn: expIn }, (error, token) => {
-            if (error) {
-                return res.status(500).json({ error: 'Failed to generate token' });
-            }
-            res.status(200).json({message : `${savedUser}+${token}`});
-        });
-
+   
     } catch (error) {
         res.status(500).json({ message: error.message });
     }
 };
+
+
+export const Login = async (req, res) => {
+try{
+
+    const email = req.body.email;
+
+    const user = await User.findOne({ email: email });
+    if(!user)
+    res.status(404).json({ message:"Email not found"});
+
+    const hashedPassword = CryptoJS.AES.decrypt(
+        user.password,
+        "aazzee"
+      );
+
+      const OriginalPassword = hashedPassword.toString(CryptoJS.enc.Utf8);
+
+      OriginalPassword !== req.body.password && 
+      res.status(401).json({message : "verify your password"});
+
+const userConnect = {
+    id : user._id,
+    username : user.username,
+    email : user.email
+}
+    const secretKey = 'patron';
+    const expIn = "5d";
+
+    jwt.sign(userConnect, secretKey, { expiresIn: expIn }, (error, token) => {
+        if (error) {
+            return res.status(500).json({ error: 'Failed to generate token' });
+        }
+        res.status(200).json({message : `${token}`});
+        console.log(`${token}`);
+    });
+
+      
+
+}catch (error) {
+    res.status(500).json({ message: error.message });
+}
+}
