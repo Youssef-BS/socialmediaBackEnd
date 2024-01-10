@@ -59,7 +59,7 @@ const userConnect = {
         if (error) {
             return res.status(500).json({ error: 'Failed to generate token' });
         }
-        res.status(200).json({message : `${token}`});
+        res.status(200).json({token :`${token}` , userConnect });
         console.log(`${token}`);
     });
 
