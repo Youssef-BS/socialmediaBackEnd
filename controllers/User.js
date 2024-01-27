@@ -32,7 +32,7 @@ export const Login = async (req, res) => {
 try{
 
     const email = req.body.email;
-
+    if(email !== "") {
     const user = await User.findOne({ email: email });
     if(!user)
     res.status(404).json({ message:"Email not found"});
@@ -64,7 +64,9 @@ const userConnect = {
     });
 
       
-
+    } else {
+        res.status(400).json({invalidForm : 'Complete Form !'})
+    }
 }catch (error) {
     res.status(500).json({ message: error.message });
 }
