@@ -33,7 +33,7 @@ export const getPostUser = async (req , res)=>{
         res.status(404).json({message: "User not found"});
 
         const userPosts = user.posts ; 
-        res.status(200).json(userPosts);
+        res.status(200).json({user , userPosts});
 
     }catch(error){
         res.status(500).json({ message: error.message });
@@ -90,3 +90,21 @@ export const editPost = async (req , res)=>{
         res.status(500).json({message:error.message});
     }
 } ; 
+
+
+export const getAllPostsByHisUser = async (req, res) => {
+    try {
+        const usersWithPosts = [] ;
+        const users = await User.find();
+
+        for (const user of users) {
+            const populatedUser = await User.findById(user._id).populate("posts");
+            const { username, posts } = populatedUser;
+            usersWithPosts.push({ username, posts });
+        }
+        res.status(200).json(usersWithPosts);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: error.message });
+    }
+};
