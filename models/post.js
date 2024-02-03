@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
 
 
-const postsSchema = new mongoose.Schema({
+const postSchema = new mongoose.Schema({
     
     photos: {
         type: [String],
@@ -27,4 +27,4 @@ const postsSchema = new mongoose.Schema({
 });
 
 
-export const Posts = mongoose.model("Posts", postsSchema);
+export const Post = mongoose.model("Post", postSchema);

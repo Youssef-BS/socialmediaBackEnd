@@ -2,7 +2,9 @@ import express from 'express';
 import { createServer } from 'http';
 import mongoose from "mongoose";
 import User from "./routes/User.js";
+import  Post  from './routes/Post.js';
 import cors from "cors";
+
 
 const app = express();
 
@@ -27,6 +29,7 @@ const connectToDataBase = async () => {
 
 connectToDataBase();
 
+app.use("/api/posts" , Post)
 app.use("/api/users" , User);
 
 server.listen(PORT , ()=>{
