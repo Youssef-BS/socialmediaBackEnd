@@ -2,6 +2,7 @@ import { User } from "../models/User.js";
 import CryptoJS from "crypto-js";
 import jwt from "jsonwebtoken";
 
+
 export const Register = async (req, res) => {
     
     const { username, email, password } = req.body;
@@ -26,6 +27,7 @@ export const Register = async (req, res) => {
         res.status(500).json({ message: error.message });
     }
 };
+
 
 
 export const Login = async (req, res) => {
@@ -70,4 +72,73 @@ const userConnect = {
 }catch (error) {
     res.status(500).json({ message: error.message });
 }
+
+}
+
+export const getUser = async (req , res)=>{
+   
+ try {
+
+   const users =   await User.find();
+   res.status(200).json({users});
+
+    }catch (error){
+        res.status(500).json({message : error.message});
+    }
+}
+
+export const updateUser = async (req , res)=>{
+    const userId = req.params.id;
+    const {username , password} = req.body ; 
+    
+    try {
+
+        const user = await User.findById(userId);
+        if(!user)
+          res.status(404).json({message : "User not found"});
+
+    const newUser = await User.findByIdAndUpdate(userId , {
+        username ,
+        password
+    },{
+        new : true ,
+    }
+    ) ;
+
+    res.status(200).json({newUser});
+    }catch(error){
+        res.status(500).json({message : error.message});
+    }
+}
+
+export const deleteUser = async(req , res)=>{
+    
+    const userId = req.params.id ; 
+
+    try{
+     
+        const user = await User.findOneById(userId);
+        if(!user)
+        res.status(404).json({message : "User not found"});
+        await User.findByIdAndDelete(userId);
+        res.status(200).json({message : "User deleted"}); 
+    
+    }catch(error){
+        res.status(500).json({message : error.message});
+    }
+}
+
+export const getOneUser = async (req , res)=>{
+    
+    const userId = req.params.id ;
+
+    try{
+       const user = await User.findOneById(userId);
+       if(!user)
+        res.status(404).json({message : "User not found"})
+
+     res.status(200).json({user});
+    }catch(error){
+        res.status(500).json({message : error.message})
+    }
 }
