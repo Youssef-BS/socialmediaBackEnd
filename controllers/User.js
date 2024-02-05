@@ -144,32 +144,37 @@ export const getOneUser = async (req , res)=>{
 }
 
 
-export const sendInvite = async (req , res)=>{
-    
-    const userToSendInvite = req.params.idUser ; 
+export const sendInvite = async (req, res) => {
+    const userToSendInvite = req.params.idUser;
     const userId = req.params.id;
-    try{
-        
-        const user = await User.findById(userToSendInvite) ;
+
+    try {
+        const user = await User.findById(userToSendInvite);
         const Me = await User.findById(userId);
-        
-        if(!user)
-           res.status(404).json({message:"User not found"});
 
-        if(!Me)
-         res.status(404).json({message:"User not found"});
-        
-         user.listInvitations.push(Me._id) ;
+        if (!user)
+            return res.status(404).json({ message: "User not found" });
 
-         await user.save();
-        
-         res.status(200).json({message:"Invitation sent successfully"});
+        if (!Me)
+            return res.status(404).json({ message: "User not found" });
 
+        if (user.listInvitations.includes(Me._id)) {
+            return res.status(409).json({ message: "You are already invited" });
+        }
 
-    }catch(error){
-        res.status(500).json({message : error.message});
+        if (user.friends.includes(Me._id)) {
+            return res.status(409).json({ message: "Your friend is already with you" });
+        }
+
+        user.listInvitations.push(Me._id);
+        await user.save();
+
+        return res.status(200).json({ message: "Invitation sent successfully" });
+
+    } catch (error) {
+        return res.status(500).json({ message: error.message });
     }
-}
+};
 
 export const fetchListUsersSentInvite = async (req , res)=>{
     const userId = req.params.id ; 
@@ -193,48 +198,44 @@ export const fetchListUsersSentInvite = async (req , res)=>{
     }
 }
 
-export const acceptInvite = async (req, res) => {
 
-    const userId = req.params.id ;
-    const userInvite = req.params.idUser ; 
+export const acceptInvite = async (req, res) => {
+    const userId = req.params.id;
+    const userInvite = req.params.idUser;
+
     try {
-    
         const user = await User.findById(userId);
         const userInviteMe = await User.findById(userInvite);
 
-        if(!user) 
-          res.status(404).json({message:"User not found"});
-        
-        
-        if(!user.listInvitations.includes(userInvite)) {
-           res.status(404).json({message: 'Invite not found'});
+        if (!user)
+            return res.status(404).json({ message: "User not found" });
+
+        if (!user.listInvitations.includes(userInvite)) {
+            return res.status(404).json({ message: 'Invite not found' });
         }
 
         const i = user.listInvitations.indexOf(userInvite);
         user.listInvitations.splice(i, 1);
         user.friends.push(userInvite);
-        userInviteMe.push(userId);
+        userInviteMe.friends.push(userId);
 
         await user.save();
         await userInviteMe.save();
 
-        res.status(200).json({message:"Invite accepted"});
-        
+        return res.status(200).json({ message: "Invite accepted" });
 
-    }catch(error){
-        res.status(500).json({message : error.message});
+    } catch (error) {
+        res.status(500).json({ message: error.message });
     }
 }
+
 
 
 export const mutalFreinds = async (req , res)=>{
   
    const userId = req.params.id;
    const userSelect = req.params.userSelect; 
-   const user1 = [] ;
-   const user2 = [];
    const informationForUsers = [];
-   const sum = 0 ;
    
    try {
 
@@ -242,26 +243,25 @@ export const mutalFreinds = async (req , res)=>{
     const userChoosed = await User.findById(userSelect);
 
     if(!user)
-     res.status(404).json({message:"user not found"});
+    return  res.status(404).json({message:"user not found"});
 
     if(!userChoosed)
-      res.status(404).json({message:"User selected not found"});
+    return res.status(404).json({message:"User selected not found"});
 
     
-    user1 = user.friends ;
-    user2 = userSelect.friends;
+   const user1 = user.friends ;
+   const user2 = userChoosed.friends;
     
-    const mutal = user1.filter(user => user1.includes(user));
+    var mutal = user1.filter(user => user2.includes(user));
      
-    sum = mutal.length;
+    const sum = mutal.length;
 
     for(const user of mutal){
         const userFind = await User.findById(user);
         informationForUsers.push(userFind);
-
     }
 
-    res.status(200).json({informationForUsers , sum});
+   return res.status(200).json({informationForUsers , sum});
 
     }catch(error){
         res.status(500).json({message : error.message});
