@@ -144,12 +144,28 @@ export const getOneUser = async (req , res)=>{
 }
 
 
-export const sendInvite = (req , res)=>{
+export const sendInvite = async (req , res)=>{
     
     const userToSendInvite = req.params.idUser ; 
     const userId = req.params.id;
     try{
         
+        const user = await User.findById(userToSendInvite) ;
+        const Me = await User.findById(userId);
+        
+        if(!user)
+           res.status(404).json({message:"User not found"});
+
+        if(!Me)
+         res.status(404).json({message:"User not found"});
+        
+         user.listInvitations.push(Me._id) ;
+
+         await user.save();
+        
+         res.status(200).json({message:"Invitation sent successfully"});
+
+
     }catch(error){
         res.status(500).json({message : error.message});
     }
@@ -157,10 +173,27 @@ export const sendInvite = (req , res)=>{
 
 
 
-export const acceptInvite = (req, res) => {
+export const acceptInvite = async (req, res) => {
+
+    const userId = req.params.id ;
+    const userInvite = req.params.idUserInvite ; 
     try {
-      
+    
+        const user = await User.findById(userId);
+        
+        if(!user.listInvitations.includes(userInvite)) {
+           res.status(404).json({message: 'Invite not found'});
+        }
+
+        const i = user.listInvitations.indexOf(userInvite);
+        user.listInvitations.splice(i, 1);
+        user.friends.push(userInvite);
+
+        await user.save();
+        
+
     }catch(error){
         res.status(500).json({message : error.message});
     }
+
 }
