@@ -18,6 +18,11 @@ const userSchema = new mongoose.Schema({
   avatar: {
       type: String,
   },
+  
+  listInvitations : {
+    type : [String],
+  },
+
   friends: {
       type: [String],
   },

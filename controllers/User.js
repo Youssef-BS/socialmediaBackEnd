@@ -143,3 +143,24 @@ export const getOneUser = async (req , res)=>{
     }
 }
 
+
+export const sendInvite = (req , res)=>{
+    
+    const userToSendInvite = req.params.idUser ; 
+    const userId = req.params.id;
+    try{
+        
+    }catch(error){
+        res.status(500).json({message : error.message});
+    }
+}
+
+
+
+export const acceptInvite = (req, res) => {
+    try {
+      
+    }catch(error){
+        res.status(500).json({message : error.message});
+    }
+}
