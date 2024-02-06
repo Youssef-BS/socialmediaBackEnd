@@ -4,6 +4,7 @@ import mongoose from "mongoose";
 import User from "./routes/User.js";
 import  Post  from './routes/Post.js';
 import cors from "cors";
+import { createCron } from './cron/cron.js';
 
 
 const app = express();
@@ -28,6 +29,8 @@ const connectToDataBase = async () => {
     }
 
 connectToDataBase();
+
+createCron();
 
 app.use("/api/posts" , Post)
 app.use("/api/users" , User);
