@@ -1,29 +1,25 @@
 import cron from "node-cron";
 import { User } from "../models/User.js";
 
-export function createCron (){
+export function createCron() {
+  async function deleteDuplicateUserInvitation() {
+    const users = await User.find();
+ 
 
-async function deleteDuplicateUserInvitation  () {
-  const listUsers = [] ;
-  const listInformationsUsers = [];  
-  const users = await User.find();
-  
-  for(const user of users){
-    const userFind = await User.findById(user);
-    listUsers.push(userFind);   
-  }
-  for(const user of listUsers){
-     const users = await User.findById(user);
-     listInformationsUsers.push(users);  
-  }
-
-  for(const i=0 ; i<listInformationsUsers.length ; i++){
-    for(const j=0 ;j<listUsers.length ; j++){
-  }
+    for (const user of users) {
+      for (let i = 0; i < user.listInvitations.length; i++) {
+        const invitation = user.listInvitations[i];
+        if (user.listInvitations.indexOf(invitation) !== i) {
+          user.listInvitations.splice(i, 1);
+          i--; 
+          await user.save();
+        }
+      }
+    }
   }
 
-cron.schedule('* * * * *', () => {
-        deleteDuplicateUserInvitation();
-        console.log('1min')
-        });
+  cron.schedule('0 0 * * *', () => {
+    deleteDuplicateUserInvitation();
+    console.log('Every minute');
+  });
 }
